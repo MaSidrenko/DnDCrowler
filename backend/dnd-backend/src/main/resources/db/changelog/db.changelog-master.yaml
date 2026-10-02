@@ -1,0 +1,19 @@
+databaseChangeLog:
+    - include:
+        file: changes/000-create-users-table.yaml
+        relativeToChangelogFile: true
+    - include:
+        file: changes/001-create-character-table.yaml
+        relativeToChangelogFile: true
+    - include:
+        file: changes/002-create-skills-table.yaml
+        relativeToChangelogFile: true
+    - include:
+        file: changes/003-create-effects-table.yaml
+        relativeToChangelogFile: true
+    - include:
+        file: changes/004-create-password-credentials-table.yaml
+        relativeToChangelogFile: true
+    - include:
+        file: changes/005-create-email-verification-table.yaml
+        relativeToChangelogFile: true
