@@ -1,0 +1,88 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-character-table
+      author: dark_soul
+      changes: 
+        - createTable:
+            tableName: characters
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false 
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: level
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: race
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: strength
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dexterity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: constitution
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: intelligence
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: wisdom
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: charisma
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: character_class
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: visibility
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+        
+        - addForeignKeyConstraint:
+            baseTableName: characters
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_characters_owner
+            onDelete: CASCADE         
