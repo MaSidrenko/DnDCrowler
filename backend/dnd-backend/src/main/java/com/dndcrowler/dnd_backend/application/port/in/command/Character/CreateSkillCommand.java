@@ -1,4 +1,4 @@
-package com.dndcrowler.dnd_backend.application.port.in.command;
+package com.dndcrowler.dnd_backend.application.port.in.command.Character;
 
 import java.util.List;
 
