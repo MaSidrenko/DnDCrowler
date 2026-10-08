@@ -2,8 +2,8 @@ package com.dndcrowler.dnd_backend.application.port.in;
 
 import java.util.List;
 
-import com.dndcrowler.dnd_backend.application.port.in.command.CreateCharacterCommand;
-import com.dndcrowler.dnd_backend.application.port.in.command.UpdateCharacterCommand;
+import com.dndcrowler.dnd_backend.application.port.in.command.Character.CreateCharacterCommand;
+import com.dndcrowler.dnd_backend.application.port.in.command.Character.UpdateCharacterCommand;
 import com.dndcrowler.dnd_backend.domain.model.Character.Character;
 import com.dndcrowler.dnd_backend.domain.model.Character.CharacterClass;
 import com.dndcrowler.dnd_backend.domain.model.Character.CharacterVisibility;

@@ -1,4 +1,4 @@
-package com.dndcrowler.dnd_backend.application.port.in.command;
+package com.dndcrowler.dnd_backend.application.port.in.command.Character;
 
 import java.util.List;
 
@@ -8,17 +8,18 @@ import com.dndcrowler.dnd_backend.domain.model.Character.CharacterClass;
 import com.dndcrowler.dnd_backend.domain.model.Character.CharacterVisibility;
 import com.dndcrowler.dnd_backend.domain.model.Character.Race;
 
-public record CreateCharacterCommand(
+public record UpdateCharacterCommand(
 	Long currentUserId,
 	String name,
 	String description,
+	int level,
 	Race race,
 	AbilityScores abilityScores,
 	List<CreateSkillCommand> skills,
 	CharacterClass characterClass,
 	CharacterVisibility visibility
 ) {
-	public CreateCharacterCommand {
+	public UpdateCharacterCommand {
 		if(skills == null || skills.stream().anyMatch(s -> s == null))
 			throw new InvalidCharacterSkillsException();
 
