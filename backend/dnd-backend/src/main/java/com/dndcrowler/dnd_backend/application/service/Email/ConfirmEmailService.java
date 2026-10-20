@@ -62,7 +62,7 @@ public class ConfirmEmailService implements ConfirmEmailUseCase {
 
 		userPort.save(verifiedUser);
 
-		EmailVerificationToken verifiedToken =tokenGet.markAsUsed();
+		EmailVerificationToken verifiedToken = tokenGet.markAsUsed();
 
 		emailPort.save(verifiedToken);
 
