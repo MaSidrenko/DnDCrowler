@@ -50,4 +50,8 @@ public record User(
 		Instant now = Instant.now();
 		return new User(null, username, email, UserRole.USER, now, now, null);
 	}
+
+	public User emailVerifyAt() {
+		return new User(id, username, email, role, createdAt, Instant.now(), Instant.now());
+	}
 }

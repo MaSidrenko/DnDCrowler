@@ -1,5 +1,7 @@
 package com.dndcrowler.dnd_backend.adapter.out.persistence.user;
 
+import java.util.Optional;
+
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
@@ -8,14 +10,13 @@ import com.dndcrowler.dnd_backend.application.port.out.User.UserRepositoryPort;
 import com.dndcrowler.dnd_backend.application.service.exception.EmailAlreadyRegisteredException;
 import com.dndcrowler.dnd_backend.domain.model.User.User;
 
-@Repository 
+@Repository
 public class UserPersistenceAdapter implements UserRepositoryPort {
 	private final SpringDataUserRepository repository;
 
 	public UserPersistenceAdapter(SpringDataUserRepository repository) {
 		this.repository = repository;
 	}
-
 
 	@Override
 	public boolean existsByEmail(String email) {
@@ -34,6 +35,11 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
 		}
 	}
 
+	@Override
+	public Optional<User> findById(Long id) {
+		return repository.findById(id).map(UserJpaEntity::toDomain);
+	}
+
 	private boolean isDuplicateEmail(DataIntegrityViolationException exception) {
 		for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
 			if (cause instanceof ConstraintViolationException violation
@@ -43,4 +49,5 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
 		}
 		return false;
 	}
+
 }
