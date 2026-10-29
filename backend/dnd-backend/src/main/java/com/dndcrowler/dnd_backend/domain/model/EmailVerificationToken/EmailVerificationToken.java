@@ -10,6 +10,7 @@ import com.dndcrowler.dnd_backend.domain.exception.emailVerificationToken.Invali
 import com.dndcrowler.dnd_backend.domain.exception.emailVerificationToken.InvalidEmailTokenUserIdException;
 
 public record EmailVerificationToken(
+	Long id,
 	Long userId,
 	String email,
 	String tokenHash,
@@ -37,7 +38,11 @@ public record EmailVerificationToken(
 
 	public static EmailVerificationToken create(Long userId, String email, 
 			String tokenHash, Instant expiresAt) {
-				return new EmailVerificationToken(userId, email, tokenHash, expiresAt, null);
+				return new EmailVerificationToken(null, userId, email, tokenHash, expiresAt, null);
+	}
+
+	public EmailVerificationToken markAsUsed() {
+		return new EmailVerificationToken(id, userId, email, tokenHash, expiresAt, Instant.now());
 	}
 
 }

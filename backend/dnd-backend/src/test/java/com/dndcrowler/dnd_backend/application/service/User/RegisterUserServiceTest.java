@@ -74,26 +74,4 @@ public class RegisterUserServiceTest {
 		verify(userRepositoryPort, never()).save(any());
 		verifyNoInteractions(passwordHasherPort, credentialsRepositoryPort);
 	}
-
-	/*@Test
-	void checkUserNameAndEmailAndRoleWhenSave() {
-		RegisterUserCommand command = new RegisterUserCommand("alice", "alice@example.com", "secret123");
-		when(passwordHasherPort.hashPassword("secret123")).thenReturn("hashed-secret");
-		when(userRepositoryPort.save(any(User.class))).thenAnswer(invocation -> {
-			User user = invocation.getArgument(0);
-
-			return new User(42L, user.username(), user.email(),
-					user.role(), user.createdAt(), user.updatedAt(),
-					user.emailVerifiedAt());
-		});
-
-		service.registerUser(command);
-		ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-		verify(userRepositoryPort).save(captor.capture());
-
-		User userToSave = captor.getValue();
-		assertEquals("alice", userToSave.username());
-		assertEquals("alice@example.com", userToSave.email());
-		assertEquals(UserRole.USER, userToSave.role());
-	}*/
 }
