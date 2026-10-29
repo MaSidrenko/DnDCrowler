@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -38,6 +39,7 @@ import com.dndcrowler.dnd_backend.domain.model.User.UserRole;
 
 @Testcontainers
 @SpringBootTest
+@ActiveProfiles("test")
 public class ConfirmEmailIntegrationTest {
 	private static final OffsetDateTime TEST_TIME = OffsetDateTime.parse("2026-01-01T00:00:00Z");
 

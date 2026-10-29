@@ -1,23 +1,29 @@
 package com.dndcrowler.dnd_backend.application.service.User;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.dndcrowler.dnd_backend.application.port.in.command.User.RegisterUserCommand;
 import com.dndcrowler.dnd_backend.application.port.out.Password.PasswordCredentialsRepositoryPort;
 import com.dndcrowler.dnd_backend.application.port.out.Password.PasswordHasherPort;
 import com.dndcrowler.dnd_backend.application.port.out.User.UserRepositoryPort;
+import com.dndcrowler.dnd_backend.application.service.Email.IssueEmailVerificationService;
 import com.dndcrowler.dnd_backend.application.service.exception.EmailAlreadyRegisteredException;
 import com.dndcrowler.dnd_backend.domain.model.Password.PasswordCredentials;
 import com.dndcrowler.dnd_backend.domain.model.User.User;
 import com.dndcrowler.dnd_backend.domain.model.User.UserRole;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RegisterUserServiceTest {
@@ -28,6 +34,9 @@ public class RegisterUserServiceTest {
 	PasswordHasherPort passwordHasherPort;
 	@Mock
 	PasswordCredentialsRepositoryPort credentialsRepositoryPort;
+	@Mock
+	IssueEmailVerificationService issueEmailVerificatioNService;
+
 	@InjectMocks
 	RegisterUserService service;
 
@@ -44,6 +53,8 @@ public class RegisterUserServiceTest {
 		});
 
 		User result = service.registerUser(command);
+
+		verify(issueEmailVerificatioNService).issue(42L, "alice@example.com");
 
 		assertEquals(42L, result.id());
 		assertEquals(UserRole.USER, result.role());
@@ -68,10 +79,12 @@ public class RegisterUserServiceTest {
 		RegisterUserCommand command = new RegisterUserCommand("alice", "alice@example.com", "secret123");
 		when(userRepositoryPort.existsByEmail("alice@example.com")).thenReturn(true);
 
+
+
 		assertThrows(EmailAlreadyRegisteredException.class,
 				() -> service.registerUser(command));
 
 		verify(userRepositoryPort, never()).save(any());
-		verifyNoInteractions(passwordHasherPort, credentialsRepositoryPort);
+		verifyNoInteractions(passwordHasherPort, credentialsRepositoryPort, issueEmailVerificatioNService);
 	}
 }
