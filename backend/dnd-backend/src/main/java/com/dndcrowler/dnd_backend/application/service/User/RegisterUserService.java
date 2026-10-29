@@ -1,7 +1,5 @@
 package com.dndcrowler.dnd_backend.application.service.User;
 
-import java.time.Instant;
-
 import org.springframework.stereotype.Service;
 
 import com.dndcrowler.dnd_backend.application.port.in.RegisterUserUseCase;
@@ -9,10 +7,10 @@ import com.dndcrowler.dnd_backend.application.port.in.command.User.RegisterUserC
 import com.dndcrowler.dnd_backend.application.port.out.Password.PasswordCredentialsRepositoryPort;
 import com.dndcrowler.dnd_backend.application.port.out.Password.PasswordHasherPort;
 import com.dndcrowler.dnd_backend.application.port.out.User.UserRepositoryPort;
+import com.dndcrowler.dnd_backend.application.service.Email.IssueEmailVerificationService;
 import com.dndcrowler.dnd_backend.application.service.exception.EmailAlreadyRegisteredException;
 import com.dndcrowler.dnd_backend.domain.model.Password.PasswordCredentials;
 import com.dndcrowler.dnd_backend.domain.model.User.User;
-import com.dndcrowler.dnd_backend.domain.model.User.UserRole;
 
 import jakarta.transaction.Transactional;
 
@@ -22,14 +20,18 @@ public class RegisterUserService implements RegisterUserUseCase {
 	private final UserRepositoryPort userRepositoryPort;
 	private final PasswordHasherPort passwordHasherPort;
 	private final PasswordCredentialsRepositoryPort passwordCredentialsRepositoryPort;
+	private final IssueEmailVerificationService issueEmailVerificationService;
 
 	public RegisterUserService(
 			UserRepositoryPort userRepositoryPort,
 			PasswordHasherPort passwordHasherPort,
-			PasswordCredentialsRepositoryPort passwordCredentialsRepositoryPort) {
+			PasswordCredentialsRepositoryPort passwordCredentialsRepositoryPort,
+			IssueEmailVerificationService issueEmailVerificationService
+		) {
 		this.userRepositoryPort = userRepositoryPort;
 		this.passwordHasherPort = passwordHasherPort;
 		this.passwordCredentialsRepositoryPort = passwordCredentialsRepositoryPort;
+		this.issueEmailVerificationService = issueEmailVerificationService;
 	}
 
 	@Override
@@ -48,6 +50,8 @@ public class RegisterUserService implements RegisterUserUseCase {
 				savedUser.id(),
 				hashedPassword);
 		passwordCredentialsRepositoryPort.save(credentials);
+		
+		issueEmailVerificationService.issue(savedUser.id(), savedUser.email());
 
 		return savedUser;
 	}
