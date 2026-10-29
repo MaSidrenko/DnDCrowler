@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -27,6 +28,7 @@ import com.dndcrowler.dnd_backend.domain.model.Password.PasswordCredentials;
 
 @Testcontainers
 @SpringBootTest
+@ActiveProfiles("test")
 @MockitoBean(types = {
 		PasswordCredentialsRepositoryPort.class,
 		VerificationEmailSenderPort.class

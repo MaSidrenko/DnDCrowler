@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -33,6 +34,7 @@ import com.dndcrowler.dnd_backend.domain.model.User.User;
 
 @Testcontainers
 @SpringBootTest
+@ActiveProfiles("test")
 @MockitoBean(types = VerificationEmailSenderPort.class)
 public class RegisterUserIntegrationTest {
 	@Container
