@@ -17,3 +17,6 @@ databaseChangeLog:
     - include:
         file: changes/005-create-email-verification-table.yaml
         relativeToChangelogFile: true
+    - include: 
+        file: changes/006-created-at-to-email-verification.yaml
+        relativeToChangelogFile: true
