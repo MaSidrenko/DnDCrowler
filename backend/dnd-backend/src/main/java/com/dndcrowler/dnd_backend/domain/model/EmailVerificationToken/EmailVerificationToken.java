@@ -3,6 +3,7 @@ package com.dndcrowler.dnd_backend.domain.model.EmailVerificationToken;
 import java.time.Instant;
 import java.util.regex.Pattern;
 
+import com.dndcrowler.dnd_backend.domain.exception.emailVerificationToken.InvalidEmailTokenCreatedAtException;
 import com.dndcrowler.dnd_backend.domain.exception.emailVerificationToken.InvalidEmailTokenEmailException;
 import com.dndcrowler.dnd_backend.domain.exception.emailVerificationToken.InvalidEmailTokenExpiresAtException;
 import com.dndcrowler.dnd_backend.domain.exception.emailVerificationToken.InvalidEmailTokenPatternEmailException;
@@ -14,6 +15,7 @@ public record EmailVerificationToken(
 	Long userId,
 	String email,
 	String tokenHash,
+	Instant createdAt,
 	Instant expiresAt,
 	Instant usedAt
 ) {
@@ -29,6 +31,9 @@ public record EmailVerificationToken(
 		if(tokenHash == null || tokenHash.isBlank()) 
 			throw new InvalidEmailTokenTokenException();
 
+		if(createdAt == null)
+			throw new InvalidEmailTokenCreatedAtException();
+
 		if(expiresAt == null) 
 			throw new InvalidEmailTokenExpiresAtException();
 
@@ -38,11 +43,13 @@ public record EmailVerificationToken(
 
 	public static EmailVerificationToken create(Long userId, String email, 
 			String tokenHash, Instant expiresAt) {
-				return new EmailVerificationToken(null, userId, email, tokenHash, expiresAt, null);
+				Instant now = Instant.now();
+				return new EmailVerificationToken(null, userId, email, tokenHash, now, expiresAt, null);
 	}
 
 	public EmailVerificationToken markAsUsed() {
-		return new EmailVerificationToken(id, userId, email, tokenHash, expiresAt, Instant.now());
+		Instant now = Instant.now();
+		return new EmailVerificationToken(id, userId, email, tokenHash, now, expiresAt, Instant.now());
 	}
 
 }
