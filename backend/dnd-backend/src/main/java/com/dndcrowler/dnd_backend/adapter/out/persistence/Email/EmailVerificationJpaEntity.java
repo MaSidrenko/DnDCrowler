@@ -21,6 +21,7 @@ public class EmailVerificationJpaEntity {
 
 	private String email;
 	private String tokenHash;
+	private Instant createdAt;
 	private Instant expiresAt;
 	private Instant usedAt;
 
@@ -32,11 +33,12 @@ public class EmailVerificationJpaEntity {
 		this.userId = token.userId();
 		this.email = token.email();
 		this.tokenHash = token.tokenHash();
+		this.createdAt = token.createdAt();
 		this.expiresAt = token.expiresAt();
 		this.usedAt = token.usedAt();
 	}
 
 	public EmailVerificationToken toDomain() {
-		return new EmailVerificationToken(id, userId, email, tokenHash, expiresAt, usedAt);
+		return new EmailVerificationToken(id, userId, email, tokenHash,createdAt, expiresAt, usedAt);
 	}
 }
