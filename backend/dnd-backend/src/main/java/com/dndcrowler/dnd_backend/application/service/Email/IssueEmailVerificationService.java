@@ -5,6 +5,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class IssueEmailVerificationService {
+	private static final Logger log = LoggerFactory.getLogger(IssueEmailVerificationService.class);
+
 	private static final SecureRandom RANDOM = new SecureRandom();
 
 	private final VerificationCodeHasherPort hasher;
@@ -41,7 +45,12 @@ public class IssueEmailVerificationService {
 			Instant.now().plus(Duration.ofMinutes(5))
 		);
 		
-		tokens.save(token);
+		EmailVerificationToken savedToken = tokens.save(token);
+		log.debug(
+			"Email verification token issued: userId={}, tokenId={}",
+			userId,
+			savedToken.id()
+		);
 
 		events.publishEvent(new VerificationCodeIssuedEvent(email, code));
 	}

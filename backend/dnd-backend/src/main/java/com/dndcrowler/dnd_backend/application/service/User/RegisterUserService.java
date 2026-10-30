@@ -1,5 +1,7 @@
 package com.dndcrowler.dnd_backend.application.service.User;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.dndcrowler.dnd_backend.application.port.in.RegisterUserUseCase;
@@ -16,6 +18,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class RegisterUserService implements RegisterUserUseCase {
+	private static final Logger log = LoggerFactory.getLogger(RegisterUserService.class);
 
 	private final UserRepositoryPort userRepositoryPort;
 	private final PasswordHasherPort passwordHasherPort;
@@ -38,7 +41,10 @@ public class RegisterUserService implements RegisterUserUseCase {
 	@Transactional
 	public User registerUser(RegisterUserCommand command) {
 		if (userRepositoryPort.existsByEmail(command.email()))
+		{
+			log.debug("User registration rejected: email already registered");
 			throw new EmailAlreadyRegisteredException();
+		}
 
 		User newUser = User.create(
 				command.username(),
@@ -52,6 +58,8 @@ public class RegisterUserService implements RegisterUserUseCase {
 		passwordCredentialsRepositoryPort.save(credentials);
 		
 		issueEmailVerificationService.issue(savedUser.id(), savedUser.email());
+
+		log.info("User registration complete: userId={}", savedUser.id());
 
 		return savedUser;
 	}
