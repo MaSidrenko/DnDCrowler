@@ -48,7 +48,7 @@ public class EmailVerificationTest {
 	void trueEmailVerificationCode() {
 		Instant now = Instant.now();
 		EmailVerificationToken token = new EmailVerificationToken(
-				10L, 1L, "example@exmpl.com", "hash_token", now.plusSeconds(5 * 60), null);
+				10L, 1L, "example@exmpl.com", "hash_token", now, now.plusSeconds(5 * 60), null);
 		User user = new User(1L, "Maxim", "example@exmpl.com", UserRole.USER, now, now, null);
 
 		ConfirmEmailCommand command = new ConfirmEmailCommand("example@exmpl.com", "123456");
@@ -129,7 +129,7 @@ public class EmailVerificationTest {
 		Instant now = Instant.now();
 		EmailVerificationToken token = new EmailVerificationToken(
 				10L, 1L, "example4@exmpl.com",
-				"hash_token", now.plusSeconds(5 * 60), null);
+				"hash_token", now, now.plusSeconds(5 * 60), null);
 		EmailVerificationToken usedToken = token.markAsUsed();
 
 		ConfirmEmailCommand command = new ConfirmEmailCommand("example4@exmpl.com", "123456");

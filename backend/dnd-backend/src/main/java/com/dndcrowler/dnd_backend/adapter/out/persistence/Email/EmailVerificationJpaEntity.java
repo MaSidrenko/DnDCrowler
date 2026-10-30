@@ -39,7 +39,6 @@ public class EmailVerificationJpaEntity {
 	}
 
 	public EmailVerificationToken toDomain() {
-		Instant now = Instant.now();
-		return new EmailVerificationToken(id, userId, email, tokenHash,now, expiresAt, usedAt);
+		return new EmailVerificationToken(id, userId, email, tokenHash,createdAt, expiresAt, usedAt);
 	}
 }

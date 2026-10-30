@@ -119,6 +119,7 @@ public class ConfirmEmailIntegrationTest {
 								rs.getLong("user_id"),
 								rs.getString("email"),
 								rs.getString("token_hash"),
+								rs.getTimestamp("created_at").toInstant(),
 								rs.getTimestamp("expires_at") == null
 										? null
 										: rs.getTimestamp("expires_at").toInstant(),
@@ -194,6 +195,7 @@ public class ConfirmEmailIntegrationTest {
 								rs.getLong("user_id"),
 								rs.getString("email"),
 								rs.getString("token_hash"),
+								rs.getTimestamp("created_at").toInstant(),
 								rs.getTimestamp("expires_at") == null
 										? null
 										: rs.getTimestamp("expires_at").toInstant(),
@@ -208,6 +210,7 @@ public class ConfirmEmailIntegrationTest {
 								rs.getLong("user_id"),
 								rs.getString("email"),
 								rs.getString("token_hash"),
+								rs.getTimestamp("created_at").toInstant(),
 								rs.getTimestamp("expires_at") == null
 										? null
 										: rs.getTimestamp("expires_at").toInstant(),
@@ -250,7 +253,6 @@ public class ConfirmEmailIntegrationTest {
 				hashCode,
 				OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(5),
 				null);
-
 
 		CountDownLatch ready = new CountDownLatch(2);
 		CountDownLatch start = new CountDownLatch(1);
