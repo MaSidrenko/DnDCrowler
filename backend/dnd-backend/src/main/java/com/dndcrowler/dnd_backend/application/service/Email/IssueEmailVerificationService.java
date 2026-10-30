@@ -47,7 +47,7 @@ public class IssueEmailVerificationService {
 		
 		EmailVerificationToken savedToken = tokens.save(token);
 		log.debug(
-			"Email verification toke issued: userId={}, tokenId={}",
+			"Email verification token issued: userId={}, tokenId={}",
 			userId,
 			savedToken.id()
 		);

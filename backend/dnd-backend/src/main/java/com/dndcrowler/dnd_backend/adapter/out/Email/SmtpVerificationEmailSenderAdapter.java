@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.dndcrowler.dnd_backend.application.port.out.Email.VerificationEmailSenderPort;
 
-@Component 
+@Component
 public class SmtpVerificationEmailSenderAdapter implements VerificationEmailSenderPort {
 	private static final Logger log = LoggerFactory.getLogger(SmtpVerificationEmailSenderAdapter.class);
 
@@ -22,7 +22,7 @@ public class SmtpVerificationEmailSenderAdapter implements VerificationEmailSend
 		this.from = from;
 	}
 
-	@Override 
+	@Override
 	public void sender(String email, String code) {
 		SimpleMailMessage message = new SimpleMailMessage();
 
@@ -33,11 +33,14 @@ public class SmtpVerificationEmailSenderAdapter implements VerificationEmailSend
 
 		try {
 			mailSender.send(message);
+
+			log.info("Verification email sent to {}", maskEmail(email));
 		} catch (MailException exception) {
 			log.error(
-				"Verification email delivery failed for {}",
-				maskEmail(email)
-			);
+					"Verification email delivery failed for {}",
+					maskEmail(email));
+
+			throw exception;
 		}
 	}
 

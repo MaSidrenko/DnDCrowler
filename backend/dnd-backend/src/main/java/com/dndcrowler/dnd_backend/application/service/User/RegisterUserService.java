@@ -59,7 +59,7 @@ public class RegisterUserService implements RegisterUserUseCase {
 		
 		issueEmailVerificationService.issue(savedUser.id(), savedUser.email());
 
-		log.info("User registration complete");
+		log.info("User registration complete: userId={}", savedUser.id());
 
 		return savedUser;
 	}
