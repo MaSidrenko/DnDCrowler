@@ -37,7 +37,7 @@ public class ResendEmailVerificationService implements ResendEmailVerificationUs
 	@Override
 	@Transactional
 	public void resend(ResendEmailVerificationCommand command) {
-		Optional<User> optionalUser = userRepository.findByEmail(command.email());
+		Optional<User> optionalUser = userRepository.findByEmailForUpdate(command.email());
 
 		if (optionalUser.isEmpty()) {
 			log.debug("Verification resend ignored: user not found");

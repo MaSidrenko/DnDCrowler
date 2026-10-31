@@ -36,12 +36,12 @@ public class ResendEmailVerificationServiceTest {
 	void findByEmailReturnEmptyUser() {
 		ResendEmailVerificationCommand command = new ResendEmailVerificationCommand("nullref@example.com");
 
-		when(userRepository.findByEmail(command.email()))
+		when(userRepository.findByEmailForUpdate(command.email()))
 				.thenReturn(Optional.empty());
 
 		service.resend(command);
 
-		verify(userRepository).findByEmail(command.email());
+		verify(userRepository).findByEmailForUpdate(command.email());
 
 		verifyNoInteractions(emailRepository, issueService);
 	}
@@ -61,12 +61,12 @@ public class ResendEmailVerificationServiceTest {
 				now,
 				now);
 
-		when(userRepository.findByEmail(command.email()))
+		when(userRepository.findByEmailForUpdate(command.email()))
 				.thenReturn(Optional.of(user));
 
 		service.resend(command);
 
-		verify(userRepository).findByEmail(command.email());
+		verify(userRepository).findByEmailForUpdate(command.email());
 		verifyNoInteractions(emailRepository, issueService);
 	}
 
@@ -93,14 +93,14 @@ public class ResendEmailVerificationServiceTest {
 				now.plusSeconds(60 * 5),
 				null);
 
-		when(userRepository.findByEmail(command.email()))
+		when(userRepository.findByEmailForUpdate(command.email()))
 				.thenReturn(Optional.of(user));
 		when(emailRepository.findCurrentByEmail(user.email()))
 				.thenReturn(Optional.of(token));
 
 		service.resend(command);
 
-		verify(userRepository).findByEmail(command.email());
+		verify(userRepository).findByEmailForUpdate(command.email());
 		verify(emailRepository).findCurrentByEmail(command.email());
 
 		verifyNoInteractions(issueService);
@@ -130,13 +130,13 @@ public class ResendEmailVerificationServiceTest {
 				now.plusSeconds(60 * 5),
 				null);
 
-		when(userRepository.findByEmail(command.email()))
+		when(userRepository.findByEmailForUpdate(command.email()))
 				.thenReturn(Optional.of(user));
 		when(emailRepository.findCurrentByEmail(user.email()))
 				.thenReturn(Optional.of(token));
 
 		service.resend(command);
-		verify(userRepository).findByEmail(command.email());
+		verify(userRepository).findByEmailForUpdate(command.email());
 		verify(emailRepository).findCurrentByEmail(command.email());
 		verify(issueService).issue(user.id(), user.email());
 	}
@@ -154,7 +154,7 @@ public class ResendEmailVerificationServiceTest {
 				now,
 				null);
 
-		when(userRepository.findByEmail(command.email()))
+		when(userRepository.findByEmailForUpdate(command.email()))
 				.thenReturn(Optional.of(user));
 
 		when(emailRepository.findCurrentByEmail(command.email()))
@@ -162,7 +162,7 @@ public class ResendEmailVerificationServiceTest {
 
 		service.resend(command);
 
-		verify(userRepository).findByEmail(command.email());
+		verify(userRepository).findByEmailForUpdate(command.email());
 		verify(emailRepository).findCurrentByEmail(user.email());
 		verify(issueService).issue(user.id(), user.email());
 	}
