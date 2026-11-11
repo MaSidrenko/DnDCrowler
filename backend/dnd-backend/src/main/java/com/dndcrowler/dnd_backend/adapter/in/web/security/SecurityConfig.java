@@ -11,6 +11,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -21,35 +25,48 @@ public class SecurityConfig {
 			LoginAuthenticationProvider loginAuthenticationProvider) {
 		this.loginAuthenticationProvider = loginAuthenticationProvider;
 	}
-	
-	@Bean 
+
+	@Bean
 	AuthenticationManager authenticationManager() {
 		return new ProviderManager(loginAuthenticationProvider);
 	}
 
 	@Bean
+	SecurityContextRepository securityContextRepository() {
+		return new HttpSessionSecurityContextRepository();
+	}
+
+	@Bean
+	SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+		return new ChangeSessionIdAuthenticationStrategy();
+	}
+
+	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.authenticationManager(authenticationManager())
-			.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(
-						HttpMethod.POST,
-						"/api/auth/register",
-						"/api/auth/email/confirm",
-						"/api/auth/email/resend",
-						"/api/auth/login")
-				.permitAll()
-				.requestMatchers(
-						"/api/auth/csrf",
-						"/v3/api-docs/**",
-						"/swagger-ui/**",
-						"/swagger-ui.html")
-				.permitAll()
-				.anyRequest().authenticated())
+				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers(
+								HttpMethod.POST,
+								"/api/auth/register",
+								"/api/auth/email/confirm",
+								"/api/auth/email/resend",
+								"/api/auth/login")
+						.permitAll()
+						.requestMatchers(
+								"/api/auth/csrf",
+								"/v3/api-docs/**",
+								"/swagger-ui/**",
+								"/swagger-ui.html")
+						.permitAll()
+						.anyRequest().authenticated())
 				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 				.csrf(Customizer.withDefaults())
 				.formLogin(AbstractHttpConfigurer::disable)
-				.httpBasic(AbstractHttpConfigurer::disable);
+				.httpBasic(AbstractHttpConfigurer::disable)
+				.securityContext(security -> security
+						.securityContextRepository(securityContextRepository())
+						.requireExplicitSave(true));
 
 		return http.build();
 	}
