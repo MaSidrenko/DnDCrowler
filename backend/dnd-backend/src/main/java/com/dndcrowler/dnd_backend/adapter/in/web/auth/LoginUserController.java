@@ -31,11 +31,11 @@ public class LoginUserController {
 	private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 	
 	public LoginUserController(
-		AuthenticationManager authenticationManager,
+		AuthenticationManager authenticationManager2,
 		SecurityContextRepository securityContextRepository,
 		SessionAuthenticationStrategy sessionAuthenticationStrategy
 	) {
-		this.authenticationManager = authenticationManager;
+		this.authenticationManager = authenticationManager2;
 		this.securityContextRepository = securityContextRepository;
 		this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
 	}
