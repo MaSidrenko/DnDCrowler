@@ -17,6 +17,9 @@ import com.dndcrowler.dnd_backend.adapter.in.web.auth.DTO.Response.CurrentUserRe
 import com.dndcrowler.dnd_backend.adapter.in.web.auth.DTO.Response.LoginResponse;
 import com.dndcrowler.dnd_backend.adapter.in.web.security.AuthenticatedUserPrincipal;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -41,6 +44,9 @@ public class LoginUserController {
 		this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
 	}
 
+	@Operation(parameters = {
+			@Parameter(name = "X-CSRF-TOKEN", in = ParameterIn.HEADER, required = true, description = "Token from GET /api/auth/csrf")
+	})
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponse> login(
 			@Valid @RequestBody LoginRequest request,
@@ -80,4 +86,5 @@ public class LoginUserController {
 	public CurrentUserResponse currentUserResponse(@AuthenticationPrincipal AuthenticatedUserPrincipal principal) {
 		return CurrentUserResponse.from(principal);
 	}
+
 }
