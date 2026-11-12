@@ -127,6 +127,45 @@ public class LoginSessionIntegrationTest {
 				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY));
 	}
 
+	@Test
+	void returnsCurrentUserFromAuthenticatedSession() throws Exception {
+		String username = "current-user";
+		String email = "current-user@example.com";
+		String password = "secret123";
+
+		Long userId = insertUser(
+				username,
+				email,
+				password,
+				true);
+
+		CsrfData csrf = obtainCsrf();
+
+		MvcResult loginResult = login(csrf, email, password)
+				.andExpect(status().isOk())
+				.andReturn();
+
+		MockHttpSession authenticatedSession = (MockHttpSession) loginResult.getRequest()
+				.getSession(false);
+
+		assertNotNull(authenticatedSession);
+
+		mockMvc.perform(get("/api/auth/me")
+				.session(authenticatedSession))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.userId").value(userId))
+				.andExpect(jsonPath("$.userName").value(username))
+				.andExpect(jsonPath("$.email").value(email))
+				.andExpect(jsonPath("$.role").value("USER"))
+				.andExpect(jsonPath("$.password").doesNotExist());
+	}
+
+	@Test
+	void rejectsCurrentUserRequestWithoutAuthenticatedSession() throws Exception {
+		mockMvc.perform(get("/api/auth/me"))
+				.andExpect(status().isUnauthorized());
+	}
+
 	private ResultActions login(CsrfData csrf, String email, String password) throws Exception {
 		return mockMvc.perform(post("/api/auth/login")
 				.session(csrf.session())
@@ -183,16 +222,15 @@ public class LoginSessionIntegrationTest {
 				now,
 				verified ? now : null);
 		jdbcTemplate.update(
-			"""
-			INSERT INTO password_credentials (
-				user_id, password_hash, password_changed_at
-			)
-			VALUES(?,?,?)
-			""",
-			userId,
-			passwordHasherPort.hashPassword(password),
-			now
-		);
-		return  userId;
+				"""
+						INSERT INTO password_credentials (
+							user_id, password_hash, password_changed_at
+						)
+						VALUES(?,?,?)
+						""",
+				userId,
+				passwordHasherPort.hashPassword(password),
+				now);
+		return userId;
 	}
 }
