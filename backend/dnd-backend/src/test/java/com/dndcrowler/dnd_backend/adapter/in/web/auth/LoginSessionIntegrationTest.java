@@ -1,6 +1,7 @@
 package com.dndcrowler.dnd_backend.adapter.in.web.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -164,6 +165,109 @@ public class LoginSessionIntegrationTest {
 	void rejectsCurrentUserRequestWithoutAuthenticatedSession() throws Exception {
 		mockMvc.perform(get("/api/auth/me"))
 				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void successLogoutAfterLogin() throws Exception {
+		String username = "current-user";
+		String email = "current-user2@example.com";
+		String password = "secret123";
+
+		Long userId = insertUser(
+				username,
+				email,
+				password,
+				true);
+
+		CsrfData csrf = obtainCsrf();
+
+		MvcResult loginResult = login(csrf, email, password)
+				.andExpect(status().isOk())
+				.andReturn();
+
+		MockHttpSession authenticatedSession = (MockHttpSession) loginResult.getRequest()
+				.getSession(false);
+
+		assertNotNull(authenticatedSession);
+
+		mockMvc.perform(post("/api/auth/logout")
+				.session(authenticatedSession)
+				.header(csrf.headerName(), csrf.token())).andExpect(status().isNoContent());
+
+		assertTrue(authenticatedSession.isInvalid());
+
+		mockMvc.perform(get("/api/auth/me"))
+				.andExpect(status().isUnauthorized());
+
+	}
+
+	@Test
+	void logoutWithoutCsrfToken() throws Exception {
+		String username = "current-user";
+		String email = "current-user3@example.com";
+		String password = "secret123";
+
+		Long userId = insertUser(
+				username,
+				email,
+				password,
+				true);
+
+		CsrfData csrf = obtainCsrf();
+
+		MvcResult loginResult = login(csrf, email, password)
+				.andExpect(status().isOk())
+				.andReturn();
+
+		MockHttpSession authenticatedSession = (MockHttpSession) loginResult.getRequest()
+				.getSession(false);
+
+		assertNotNull(authenticatedSession);
+
+		mockMvc.perform(post("/api/auth/logout")
+				.session(authenticatedSession)).andExpect(status().isForbidden());
+
+		assertFalse(authenticatedSession.isInvalid());
+
+		mockMvc.perform(get("/api/auth/me")
+				.session(authenticatedSession))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.userId").value(userId))
+				.andExpect(jsonPath("$.userName").value(username))
+				.andExpect(jsonPath("$.email").value(email))
+				.andExpect(jsonPath("$.role").value("USER"))
+				.andExpect(jsonPath("$.password").doesNotExist());
+	}
+	@Test 
+	void publicPolicyCsrf() throws Exception {
+		mockMvc.perform(post("/api/auth/register")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content("{}")
+		).andExpect(status().isBadRequest());
+
+		mockMvc.perform(post("/api/auth/email/confirm")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content("{}")
+		).andExpect(status().isBadRequest());
+		
+		mockMvc.perform(post("/api/auth/email/resend")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content("{}")
+		).andExpect(status().isBadRequest());
+		
+		mockMvc.perform(post("/api/auth/login")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(
+				"""
+					{
+						"email": "alice@example.com",
+						"password": "secret123"
+					}
+				"""
+			)
+		).andExpect(status().isForbidden());
+		
+
 	}
 
 	private ResultActions login(CsrfData csrf, String email, String password) throws Exception {
