@@ -3,6 +3,7 @@ package com.dndcrowler.dnd_backend.adapter.in.web.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -66,7 +68,12 @@ public class SecurityConfig {
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.securityContext(security -> security
 						.securityContextRepository(securityContextRepository())
-						.requireExplicitSave(true));
+						.requireExplicitSave(true))
+				.exceptionHandling(exceptions -> exceptions
+					.authenticationEntryPoint(
+						new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+					)		
+				);
 
 		return http.build();
 	}
