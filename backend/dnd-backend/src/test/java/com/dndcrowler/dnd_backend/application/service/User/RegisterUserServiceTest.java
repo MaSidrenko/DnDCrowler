@@ -88,3 +88,4 @@ public class RegisterUserServiceTest {
 		verifyNoInteractions(passwordHasherPort, credentialsRepositoryPort, issueEmailVerificatioNService);
 	}
 }
+

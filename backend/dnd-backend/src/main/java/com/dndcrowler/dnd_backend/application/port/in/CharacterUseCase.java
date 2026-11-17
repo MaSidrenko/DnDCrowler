@@ -12,19 +12,19 @@ import com.dndcrowler.dnd_backend.domain.model.Character.Race;
 public interface CharacterUseCase {
 	List<Character> getAllCharacter();
 
-	List<Character> getCharacterByName(String name);
+	List<Character> getPublicCharacterByName(String name);
 
-	List<Character> getCharacterByRace(Race race);
+	List<Character> getPublicCharacterByRace(Race race);
 
-	List<Character> getCharacterByClass(CharacterClass characterClass);
+	List<Character> getPublicCharacterByClass(CharacterClass characterClass);
 
 	List<Character> getCharacterByVisibility(CharacterVisibility visibility);
 
 	Character createCharacter(CreateCharacterCommand command);
 
-	Character getCharacterById(Long id);
+	Character getCharacterById(Long id, Long currentUserId);
 
-	List<Character> getMyCharacter(Long ownerId);
+	List<Character> getMyCharacters(Long ownerId);
 
 	List<Character> getPublicCharacters();
 
