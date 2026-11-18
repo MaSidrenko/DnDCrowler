@@ -9,15 +9,14 @@ import com.dndcrowler.dnd_backend.application.port.in.CharacterUseCase;
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.CreateCharacterCommand;
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.CreateSkillCommand;
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.UpdateCharacterCommand;
+import com.dndcrowler.dnd_backend.application.port.in.query.CharacterSearchCriteria;
 import com.dndcrowler.dnd_backend.application.port.out.Character.CharacterRepositoryPort;
 import com.dndcrowler.dnd_backend.application.port.out.User.UserRepositoryPort;
 import com.dndcrowler.dnd_backend.application.service.exception.CharacterAccessDeniedException;
 import com.dndcrowler.dnd_backend.application.service.exception.CharacterNotFoundException;
 import com.dndcrowler.dnd_backend.application.service.exception.UserNotFoundException;
 import com.dndcrowler.dnd_backend.domain.model.Character.Character;
-import com.dndcrowler.dnd_backend.domain.model.Character.CharacterClass;
 import com.dndcrowler.dnd_backend.domain.model.Character.CharacterVisibility;
-import com.dndcrowler.dnd_backend.domain.model.Character.Race;
 import com.dndcrowler.dnd_backend.domain.model.Skills.Skills;
 
 @Service
@@ -61,11 +60,6 @@ public class CharacterService implements CharacterUseCase {
 	}
 
 	@Override
-	public List<Character> getPublicCharacterByClass(CharacterClass characterClass) {
-		return characterRepositoryPort.findCharacterByClassAndVisibility(characterClass, CharacterVisibility.PUBLIC);
-	}
-
-	@Override
 	public Character getCharacterById(Long id, Long currentUserId) {
 		Character character = characterRepositoryPort.findById(id).orElseThrow(
 				() -> new CharacterNotFoundException(id));
@@ -78,16 +72,6 @@ public class CharacterService implements CharacterUseCase {
 		}
 
 		return character;
-	}
-
-	@Override
-	public List<Character> getPublicCharacterByName(String name) {
-		return characterRepositoryPort.findCharacterByNameAndVisibility(name, CharacterVisibility.PUBLIC);
-	}
-
-	@Override
-	public List<Character> getPublicCharacterByRace(Race race) {
-		return characterRepositoryPort.findCharacterByRaceAndVisibility(race, CharacterVisibility.PUBLIC);
 	}
 
 	@Override
@@ -125,5 +109,10 @@ public class CharacterService implements CharacterUseCase {
 				command.characterClass(), command.visibility());
 
 		return characterRepositoryPort.save(newDataCharacter);
+	}
+
+	@Override
+	public List<Character> searchPublicCharacters(CharacterSearchCriteria characterSearchCriteria) {
+		return  characterRepositoryPort.findPublic(characterSearchCriteria);
 	}
 }

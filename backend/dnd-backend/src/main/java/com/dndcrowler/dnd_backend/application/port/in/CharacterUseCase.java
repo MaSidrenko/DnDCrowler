@@ -4,19 +4,14 @@ import java.util.List;
 
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.CreateCharacterCommand;
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.UpdateCharacterCommand;
+import com.dndcrowler.dnd_backend.application.port.in.query.CharacterSearchCriteria;
 import com.dndcrowler.dnd_backend.domain.model.Character.Character;
-import com.dndcrowler.dnd_backend.domain.model.Character.CharacterClass;
 import com.dndcrowler.dnd_backend.domain.model.Character.CharacterVisibility;
-import com.dndcrowler.dnd_backend.domain.model.Character.Race;
 
 public interface CharacterUseCase {
 	List<Character> getAllCharacter();
 
-	List<Character> getPublicCharacterByName(String name);
-
-	List<Character> getPublicCharacterByRace(Race race);
-
-	List<Character> getPublicCharacterByClass(CharacterClass characterClass);
+	List<Character> searchPublicCharacters(CharacterSearchCriteria characterSearchCriteria);
 
 	List<Character> getCharacterByVisibility(CharacterVisibility visibility);
 

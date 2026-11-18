@@ -27,7 +27,7 @@ public record Character(Long id, String name, String description, Long ownerID, 
 
 		if(abilityScores == null) throw new InvalidCharacterAbilityScoresException();
 
-		if(level < 1) throw new InvalidCharacterLevelException();
+		if(level < 1 || level > 20) throw new InvalidCharacterLevelException();
 
 		if(skills == null || skills.stream().anyMatch(Objects::isNull))
 			throw new InvalidCharacterSkillsException();
