@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.CreateCharacterCommand;
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.CreateSkillCommand;
 import com.dndcrowler.dnd_backend.application.port.in.command.Character.UpdateCharacterCommand;
+import com.dndcrowler.dnd_backend.application.port.in.query.CharacterSearchCriteria;
 import com.dndcrowler.dnd_backend.application.port.out.Character.CharacterRepositoryPort;
 import com.dndcrowler.dnd_backend.application.port.out.User.UserRepositoryPort;
 import com.dndcrowler.dnd_backend.application.service.exception.CharacterAccessDeniedException;
@@ -130,6 +131,15 @@ class CharacterServiceTest {
 	}
 
 	@Test
+	void rejectsReadingCharacterThatDoesNotExist() {
+		when(characterRepositoryPort.findById(CHARACTER_ID))
+				.thenReturn(Optional.empty());
+
+		assertThrows(CharacterNotFoundException.class,
+				() -> service.getCharacterById(CHARACTER_ID, OWNER_ID));
+	}
+
+	@Test
 	void ownerCanUpdateCharacter() {
 		Character existing = character(
 				CHARACTER_ID, OWNER_ID, CharacterVisibility.PRIVATE);
@@ -166,20 +176,29 @@ class CharacterServiceTest {
 	}
 
 	@Test
-	void publicSearchesAlwaysUsePublicVisibility() {
-		service.getPublicCharacterByClass(CharacterClass.WIZARD);
-		service.getPublicCharacterByName("mage");
-		service.getPublicCharacterByRace(Race.ELF);
-		service.getPublicCharacters();
+	void rejectsUpdateWhenCharacterDoesNotExist() {
+		when(characterRepositoryPort.findById(CHARACTER_ID))
+				.thenReturn(Optional.empty());
 
-		verify(characterRepositoryPort).findCharacterByClassAndVisibility(
-				CharacterClass.WIZARD, CharacterVisibility.PUBLIC);
-		verify(characterRepositoryPort).findCharacterByNameAndVisibility(
-				"mage", CharacterVisibility.PUBLIC);
-		verify(characterRepositoryPort).findCharacterByRaceAndVisibility(
-				Race.ELF, CharacterVisibility.PUBLIC);
-		verify(characterRepositoryPort).findCharacterByVisibility(
-				CharacterVisibility.PUBLIC);
+		assertThrows(CharacterNotFoundException.class,
+				() -> service.updateCharacter(
+						CHARACTER_ID, updateCommand(OWNER_ID)));
+
+		verify(characterRepositoryPort, never()).save(any());
+	}
+
+	@Test
+	void delegatesCombinedPublicSearchCriteria() {
+		CharacterSearchCriteria criteria = new CharacterSearchCriteria(
+				"mage", Race.ELF, CharacterClass.WIZARD);
+		List<Character> expected = List.of(
+				character(CHARACTER_ID, OWNER_ID, CharacterVisibility.PUBLIC));
+		when(characterRepositoryPort.findPublic(criteria)).thenReturn(expected);
+
+		List<Character> result = service.searchPublicCharacters(criteria);
+
+		assertSame(expected, result);
+		verify(characterRepositoryPort).findPublic(criteria);
 	}
 
 	@Test
