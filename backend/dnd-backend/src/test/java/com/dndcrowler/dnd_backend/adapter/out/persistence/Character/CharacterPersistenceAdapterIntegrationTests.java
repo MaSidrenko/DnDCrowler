@@ -24,6 +24,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import com.dndcrowler.dnd_backend.application.port.in.query.CharacterSearchCriteria;
 import com.dndcrowler.dnd_backend.domain.model.Character.AbilityScores;
 import com.dndcrowler.dnd_backend.domain.model.Character.Character;
 import com.dndcrowler.dnd_backend.domain.model.Character.CharacterClass;
@@ -345,7 +346,7 @@ public class CharacterPersistenceAdapterIntegrationTests {
 	}
 
 	@Test
-	void filtersByClassRaceAndVisibility() {
+	void filtersPublicCharactersByClassRaceAndCombinedCriteria() {
 		Long ownerId = insertUser("filters@example.com");
 
 		Character publicWizard = saveCharacter(
@@ -361,13 +362,20 @@ public class CharacterPersistenceAdapterIntegrationTests {
 		entityManager.clear();
 
 		assertCharacterIds(
-				adapter.findCharacterByClassAndVisibility(
-						CharacterClass.WIZARD, CharacterVisibility.PUBLIC),
+				adapter.findPublic(new CharacterSearchCriteria(
+						null, null, CharacterClass.WIZARD)),
 				publicWizard.id());
 		assertCharacterIds(
-				adapter.findCharacterByRaceAndVisibility(
-						Race.ELF, CharacterVisibility.PUBLIC),
+				adapter.findPublic(new CharacterSearchCriteria(
+						null, Race.ELF, null)),
 				publicWizard.id());
+		assertCharacterIds(
+				adapter.findPublic(new CharacterSearchCriteria(
+						"public", Race.ELF, CharacterClass.WIZARD)),
+				publicWizard.id());
+		assertCharacterIds(
+				adapter.findPublic(new CharacterSearchCriteria(null, null, null)),
+				publicWizard.id(), publicFighter.id());
 		assertCharacterIds(
 				adapter.findCharacterByVisibility(CharacterVisibility.PUBLIC),
 				publicWizard.id(), publicFighter.id());
@@ -393,8 +401,8 @@ public class CharacterPersistenceAdapterIntegrationTests {
 		entityManager.clear();
 
 		assertCharacterIds(
-				adapter.findCharacterByNameAndVisibility(
-						"sIlVeR", CharacterVisibility.PUBLIC),
+				adapter.findPublic(new CharacterSearchCriteria(
+						"sIlVeR", null, null)),
 				publicCharacter.id());
 	}
 
