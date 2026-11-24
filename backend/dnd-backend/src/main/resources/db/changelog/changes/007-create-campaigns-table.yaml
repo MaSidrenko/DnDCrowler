@@ -1,0 +1,104 @@
+databaseChangeLog: 
+  - changeSet:
+      id: 007-create-campaigns-table
+      author: dark_soul
+      changes: 
+        - createTable:
+            tableName: campaigns
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: game_master_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: format
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_player_count
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: min_level
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_level
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: schedule_day_of_week
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: schedule_start_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: schedule_time_zone
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requirements
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: campaigns
+            baseColumnNames: game_master_id
+            constraintName: fk_campaigns_game_master
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createIndex:
+            tableName: campaigns
+            indexName: idx_campaigns_game_master_id
+            columns: 
+              - column:
+                  name: game_master_id
+        - createIndex:
+            tableName: campaigns
+            indexName: idx_campaigns_status
+            columns: 
+              - column:
+                  name: status
