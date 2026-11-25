@@ -66,6 +66,11 @@ public class SecurityConfig {
 								"/api/auth/csrf")
 						.permitAll()
 						.requestMatchers(
+								HttpMethod.GET,
+								"/api/campaigns/public",
+								"/api/campaigns/public/**")
+						.permitAll()
+						.requestMatchers(
 								"/v3/api-docs",
 								"/v3/api-docs/**",
 								"/swagger-ui/**",
