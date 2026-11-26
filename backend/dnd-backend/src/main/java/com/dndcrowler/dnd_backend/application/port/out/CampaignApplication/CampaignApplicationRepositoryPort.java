@@ -10,9 +10,12 @@ public interface CampaignApplicationRepositoryPort {
 
 	Optional<CampaignApplication> findById(Long id);
 
+	Optional<CampaignApplication> findByIdForUpdate(
+			Long applicationId);
+
 	boolean existsActiveByCampaignIdAndApplicantId(
 			Long campaignId,
-			Long applicationId);
+			Long applicantId);
 
 	List<CampaignApplication> findByApplicantId(Long applicantId);
 

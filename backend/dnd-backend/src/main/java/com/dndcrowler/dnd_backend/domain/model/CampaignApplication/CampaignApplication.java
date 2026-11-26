@@ -61,6 +61,14 @@ public record CampaignApplication(
 		return withStatus(CampaignApplicationStatus.WITHDRAWN);
 	}
 
+	public static CampaignApplication create(Long campaignId,
+			Long applicantId, Long characterId, String message) {
+		Instant now = Instant.now();
+		return new CampaignApplication(null, campaignId,
+				applicantId, characterId, CampaignApplicationStatus.PENDING,
+				message, now, now);
+	}
+
 	private CampaignApplication withStatus(CampaignApplicationStatus newStatus) {
 		return new CampaignApplication(
 				id,

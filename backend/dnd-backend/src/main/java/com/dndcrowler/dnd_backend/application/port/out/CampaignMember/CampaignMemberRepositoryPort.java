@@ -9,5 +9,5 @@ public interface CampaignMemberRepositoryPort {
 			Long campaignId,
 			Long userId);
 
-	Long countByCampaignId(Long campaignId);
+	long countByCampaignId(Long campaignId);
 }

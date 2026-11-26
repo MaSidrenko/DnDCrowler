@@ -13,6 +13,9 @@ import com.dndcrowler.dnd_backend.application.port.out.Campaign.CampaignReposito
 import com.dndcrowler.dnd_backend.domain.model.Campaign.Campaign;
 import com.dndcrowler.dnd_backend.domain.model.Campaign.CampaignStatus;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+
 @Repository
 public class CampaignPersistenceAdapter implements CampaignRepositoryPort {
 	private static final Set<CampaignStatus> PUBLIC_STATUSES = Set.of(
@@ -21,9 +24,13 @@ public class CampaignPersistenceAdapter implements CampaignRepositoryPort {
 			CampaignStatus.IN_PROGRESS,
 			CampaignStatus.COMPLETED);
 	private final SpringDataCampaignRepository repository;
+	private final EntityManager entityManager;
 
-	public CampaignPersistenceAdapter(SpringDataCampaignRepository repository) {
+	public CampaignPersistenceAdapter(
+			SpringDataCampaignRepository repository,
+			EntityManager entityManager) {
 		this.repository = repository;
+		this.entityManager = entityManager;
 	}
 
 	@Override
@@ -90,5 +97,16 @@ public class CampaignPersistenceAdapter implements CampaignRepositoryPort {
 				.stream()
 				.map(CampaignJpaEntity::toDomain)
 				.toList();
+	}
+
+	@Override
+	public Optional<Campaign> findByIdForUpdate(Long campaignId) {
+		CampaignJpaEntity entity = entityManager.find(
+				CampaignJpaEntity.class,
+				campaignId,
+				LockModeType.PESSIMISTIC_WRITE);
+
+		return Optional.ofNullable(entity)
+				.map(CampaignJpaEntity::toDomain);
 	}
 }
