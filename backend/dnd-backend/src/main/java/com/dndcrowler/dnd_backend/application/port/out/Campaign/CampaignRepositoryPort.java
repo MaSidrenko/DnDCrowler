@@ -11,11 +11,12 @@ public interface CampaignRepositoryPort {
 
 	Optional<Campaign> findById(Long campaignId);
 
+	Optional<Campaign> findByIdForUpdate(Long campaignId);
+
 	Optional<Campaign> findPubliclyVisibleById(Long campaignId);
 
 	List<Campaign> findByGameMasterId(Long gameMasterId);
 
 	List<Campaign> searchRecruiting(
-		CampaignSearchCriteria criteria
-	);
+			CampaignSearchCriteria criteria);
 }

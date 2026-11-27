@@ -142,9 +142,8 @@ public record Campaign(
 
 	public Campaign complete() {
 		return changeStatus(
-			CampaignStatus.IN_PROGRESS, 
-			CampaignStatus.COMPLETED
-		);
+				CampaignStatus.IN_PROGRESS,
+				CampaignStatus.COMPLETED);
 	}
 
 	public Campaign cancel() {
@@ -156,6 +155,22 @@ public record Campaign(
 		}
 
 		return withStatus(CampaignStatus.CANCELLED);
+	}
+
+	public Campaign markFull() {
+		if (status != CampaignStatus.RECRUITING) {
+			throw new InvalidCampaignStatusTransitionException(status, CampaignStatus.FULL);
+		}
+
+		return withStatus(CampaignStatus.FULL);
+	}
+
+	public Campaign reopenRecruiting() {
+		if(status != CampaignStatus.FULL) {
+			throw new InvalidCampaignStatusTransitionException(status, CampaignStatus.RECRUITING);
+		}
+
+		return withStatus(CampaignStatus.RECRUITING);
 	}
 
 	private Campaign changeStatus(
