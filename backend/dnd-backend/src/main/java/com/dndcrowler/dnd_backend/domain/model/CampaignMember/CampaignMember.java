@@ -2,6 +2,11 @@ package com.dndcrowler.dnd_backend.domain.model.CampaignMember;
 
 import java.time.Instant;
 
+import com.dndcrowler.dnd_backend.domain.exception.campaignMember.InvalidCampaignMemberCampaignIdException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignMember.InvalidCampaignMemberCharacterIdException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignMember.InvalidCampaignMemberJoinedAtException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignMember.InvalidCampaignMemberUserIdException;
+
 public record CampaignMember(
 		Long id,
 		Long campaignId,
@@ -9,20 +14,20 @@ public record CampaignMember(
 		Long characterId,
 		Instant joinedAt) {
 	public CampaignMember {
-		if (campaignId == null) {
-			throw new IllegalArgumentException();
+		if (campaignId == null || campaignId <= 0) {
+			throw new InvalidCampaignMemberCampaignIdException();
 		}
 
-		if (userId == null) {
-			throw new IllegalArgumentException();
+		if (userId == null || userId <= 0) {
+			throw new InvalidCampaignMemberUserIdException();
 		}
 
-		if (characterId == null) {
-			throw new IllegalArgumentException();
+		if (characterId == null || characterId <= 0) {
+			throw new InvalidCampaignMemberCharacterIdException();
 		}
 
 		if (joinedAt == null) {
-			throw new IllegalArgumentException();
+			throw new InvalidCampaignMemberJoinedAtException();
 		}
 	}
 

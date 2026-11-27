@@ -11,8 +11,17 @@ import com.dndcrowler.dnd_backend.application.port.out.Campaign.CampaignReposito
 import com.dndcrowler.dnd_backend.application.port.out.CampaignApplication.CampaignApplicationRepositoryPort;
 import com.dndcrowler.dnd_backend.application.port.out.CampaignMember.CampaignMemberRepositoryPort;
 import com.dndcrowler.dnd_backend.application.port.out.Character.CharacterRepositoryPort;
+import com.dndcrowler.dnd_backend.application.service.exception.CampaignAccessDeniedException;
+import com.dndcrowler.dnd_backend.application.service.exception.CampaignApplicationAccessDeniedException;
+import com.dndcrowler.dnd_backend.application.service.exception.CampaignApplicationAlreadyExistsException;
+import com.dndcrowler.dnd_backend.application.service.exception.CampaignApplicationNotFoundException;
+import com.dndcrowler.dnd_backend.application.service.exception.CampaignFullException;
+import com.dndcrowler.dnd_backend.application.service.exception.CampaignMemberAlreadyExistsException;
 import com.dndcrowler.dnd_backend.application.service.exception.CampaignNotFoundException;
+import com.dndcrowler.dnd_backend.application.service.exception.CampaignNotRecruitingException;
+import com.dndcrowler.dnd_backend.application.service.exception.CannotApplyToOwnCampaignException;
 import com.dndcrowler.dnd_backend.application.service.exception.CharacterAccessDeniedException;
+import com.dndcrowler.dnd_backend.application.service.exception.CharacterLevelNotAllowedException;
 import com.dndcrowler.dnd_backend.application.service.exception.CharacterNotFoundException;
 import com.dndcrowler.dnd_backend.domain.model.Campaign.Campaign;
 import com.dndcrowler.dnd_backend.domain.model.Campaign.CampaignStatus;
@@ -46,36 +55,31 @@ public class CampaignApplicationService implements CampaignApplicationUseCase {
 				.findByIdForUpdate(command.campaignId())
 				.orElseThrow(() -> new CampaignNotFoundException(command.campaignId()));
 
-		if (campaign.status() != CampaignStatus.RECRUITING) {
-			throw new IllegalArgumentException();
-		}
+		ensureRecruiting(campaign);
 
 		if (campaign.gameMasterId().equals(command.currentUserId())) {
-			throw new IllegalArgumentException();
+			throw new CannotApplyToOwnCampaignException(campaign.id());
 		}
 		Character character = characterRepository
 				.findById(command.characterId())
 				.orElseThrow(() -> new CharacterNotFoundException(command.characterId()));
 
-		if (!character.ownerID().equals(command.currentUserId())) {
-			throw new CharacterAccessDeniedException();
-		}
-
-		if (character.level() < campaign.minLevel()
-				|| character.level() > campaign.maxLevel()) {
-			throw new IllegalArgumentException();
-		}
+		validateCharacter(character, campaign, command.currentUserId());
 
 		if (applicationRepository.existsActiveByCampaignIdAndApplicantId(
 				campaign.id(),
 				command.currentUserId())) {
-			throw new IllegalArgumentException();
+			throw new CampaignApplicationAlreadyExistsException(
+					campaign.id(),
+					command.currentUserId());
 		}
 
 		if (memberRepository.existsByCampaignIdAndUserId(
 				campaign.id(),
 				command.currentUserId())) {
-			throw new IllegalArgumentException();
+			throw new CampaignMemberAlreadyExistsException(
+					campaign.id(),
+					command.currentUserId());
 		}
 
 		CampaignApplication newApplication = CampaignApplication
@@ -95,7 +99,8 @@ public class CampaignApplicationService implements CampaignApplicationUseCase {
 
 		Campaign campaign = campaignRepository
 				.findByIdForUpdate(application.campaignId())
-				.orElseThrow(() -> new IllegalArgumentException());
+				.orElseThrow(() -> new CampaignNotFoundException(
+						application.campaignId()));
 
 		ensureGameMaster(campaign, currentUserId);
 		ensureRecruiting(campaign);
@@ -104,13 +109,15 @@ public class CampaignApplicationService implements CampaignApplicationUseCase {
 				campaign.id(), application.applicantId());
 
 		if (alreadyMember) {
-			throw new IllegalArgumentException();
+			throw new CampaignMemberAlreadyExistsException(
+					campaign.id(),
+					application.applicantId());
 		}
 
 		long currentMemberCount = memberRepository.countByCampaignId(campaign.id());
 
 		if (currentMemberCount >= campaign.maxPlayerCount()) {
-			throw new IllegalArgumentException();
+			throw new CampaignFullException(campaign.id());
 		}
 
 		Character character = characterRepository
@@ -158,7 +165,7 @@ public class CampaignApplicationService implements CampaignApplicationUseCase {
 
 		if (!Objects.equals(
 				application.applicantId(), currentUserId)) {
-			throw new IllegalArgumentException();
+			throw new CampaignApplicationAccessDeniedException();
 		}
 
 		CampaignApplication withdrawApplication = application.withdraw();
@@ -189,16 +196,19 @@ public class CampaignApplicationService implements CampaignApplicationUseCase {
 			Long applicationId) {
 		return applicationRepository
 				.findByIdForUpdate(applicationId)
-				.orElseThrow(() -> new IllegalArgumentException());
+				.orElseThrow(() -> new CampaignApplicationNotFoundException(
+						applicationId));
 	}
 
 	private void ensureRecruiting(Campaign campaign) {
 		if (campaign.status() == CampaignStatus.FULL) {
-			throw new IllegalArgumentException();
+			throw new CampaignFullException(campaign.id());
 		}
 
 		if (campaign.status() != CampaignStatus.RECRUITING) {
-			throw new IllegalArgumentException();
+			throw new CampaignNotRecruitingException(
+					campaign.id(),
+					campaign.status());
 		}
 	}
 
@@ -206,7 +216,7 @@ public class CampaignApplicationService implements CampaignApplicationUseCase {
 			Campaign campaign,
 			Long currentUserId) {
 		if (!Objects.equals(campaign.gameMasterId(), currentUserId)) {
-			throw new IllegalArgumentException();
+			throw new CampaignAccessDeniedException();
 		}
 	}
 
@@ -223,7 +233,11 @@ public class CampaignApplicationService implements CampaignApplicationUseCase {
 		boolean levelTooHigh = character.level() > campaign.maxLevel();
 
 		if (levelTooLow || levelTooHigh) {
-			throw new IllegalArgumentException();
+			throw new CharacterLevelNotAllowedException(
+					character.id(),
+					character.level(),
+					campaign.minLevel(),
+					campaign.maxLevel());
 		}
 	}
 }

@@ -2,6 +2,15 @@ package com.dndcrowler.dnd_backend.domain.model.CampaignApplication;
 
 import java.time.Instant;
 
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationApplicantIdException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationCampaignIdException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationCharacterIdException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationCreatedAtException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationStatusException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationStatusTransitionException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationUpdatedAtBeforeCreatedAtException;
+import com.dndcrowler.dnd_backend.domain.exception.campaignApplication.InvalidCampaignApplicationUpdatedAtException;
+
 public record CampaignApplication(
 		Long id,
 		Long campaignId,
@@ -12,34 +21,40 @@ public record CampaignApplication(
 		Instant createdAt,
 		Instant updatedAt) {
 	public CampaignApplication {
-		if (campaignId == null) {
-			throw new IllegalArgumentException();
+		if (campaignId == null || campaignId <= 0) {
+			throw new InvalidCampaignApplicationCampaignIdException();
 		}
 
-		if (applicantId == null) {
-			throw new IllegalArgumentException();
+		if (applicantId == null || applicantId <= 0) {
+			throw new InvalidCampaignApplicationApplicantIdException();
 		}
 
-		if (characterId == null) {
-			throw new IllegalArgumentException();
+		if (characterId == null || characterId <= 0) {
+			throw new InvalidCampaignApplicationCharacterIdException();
 		}
 
 		if (status == null) {
-			throw new IllegalArgumentException();
+			throw new InvalidCampaignApplicationStatusException();
 		}
 
 		if (createdAt == null) {
-			throw new IllegalArgumentException();
+			throw new InvalidCampaignApplicationCreatedAtException();
 		}
 
 		if (updatedAt == null) {
-			throw new IllegalArgumentException();
+			throw new InvalidCampaignApplicationUpdatedAtException();
+		}
+
+		if (updatedAt.isBefore(createdAt)) {
+			throw new InvalidCampaignApplicationUpdatedAtBeforeCreatedAtException();
 		}
 	}
 
 	public CampaignApplication accept() {
 		if (status != CampaignApplicationStatus.PENDING) {
-			throw new IllegalArgumentException();
+			throw new InvalidCampaignApplicationStatusTransitionException(
+					status,
+					CampaignApplicationStatus.ACCEPTED);
 		}
 
 		return withStatus(CampaignApplicationStatus.ACCEPTED);
@@ -47,7 +62,9 @@ public record CampaignApplication(
 
 	public CampaignApplication reject() {
 		if (status != CampaignApplicationStatus.PENDING) {
-			throw new IllegalArgumentException();
+			throw new InvalidCampaignApplicationStatusTransitionException(
+					status,
+					CampaignApplicationStatus.REJECTED);
 		}
 
 		return withStatus(CampaignApplicationStatus.REJECTED);
@@ -55,7 +72,9 @@ public record CampaignApplication(
 
 	public CampaignApplication withdraw() {
 		if (status != CampaignApplicationStatus.PENDING) {
-			throw new IllegalArgumentException();
+			throw new InvalidCampaignApplicationStatusTransitionException(
+					status,
+					CampaignApplicationStatus.WITHDRAWN);
 		}
 
 		return withStatus(CampaignApplicationStatus.WITHDRAWN);
